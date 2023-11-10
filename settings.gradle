@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        mavenLocal()
+    }
+    plugins {
+        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
+}
+
+rootProject.name = 'dynamicsoft'
+include 'src:marketplace'
+findProject(':src:marketplace')?.name = 'marketplace'
+include 'src:sharedkernel'
+findProject(':src:sharedkernel')?.name = 'sharedkernel'
+include 'src:webapi'
+findProject(':src:webapi')?.name = 'webapi'
+
