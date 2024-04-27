@@ -1,0 +1,17 @@
+.palette-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+
+.palette-item-shape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 60px;
+  background-color: orange; /* Default color */
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}

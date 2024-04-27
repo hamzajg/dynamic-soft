@@ -1,0 +1,43 @@
+{
+  "name": "dynamic-soft-vscode-extension",
+  "description": "Dynamic Soft VS Code Extension",
+  "version": "1.0.0",
+  "publisher": "Hamza Jguerim",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "activationEvents": [
+    "onCommand:dynamic-soft-extension.open"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dynamic-soft-extension.open",
+        "title": "Open Dynamic Soft VS Code Extension"
+      }
+    ]
+  },
+  "contentSecurityPolicy": {
+    "frame-src": [
+      "'self'",
+      "http://localhost:3000",
+      "http://localhost:8081"
+    ]
+  },
+  "scripts": {
+    "package": "vsce package",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18",
+    "@types/vscode": "^1.73.0",
+    "typescript": "^5.4.2",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  }
+}
