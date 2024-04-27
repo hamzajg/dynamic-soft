@@ -20,4 +20,6 @@ include 'src:sharedkernel'
 findProject(':src:sharedkernel')?.name = 'sharedkernel'
 include 'src:webapi'
 findProject(':src:webapi')?.name = 'webapi'
+include 'src:subscription'
+findProject(':src:subscription')?.name = 'subscription'
 
