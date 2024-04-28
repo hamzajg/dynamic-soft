@@ -1,5 +1,6 @@
 package com.hamzajg.dynamicsoft.apis;
 
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/teams")
+@RolesAllowed("user")
 public class TeamController {
     private final List<TeamDto> teams = new ArrayList<>();
 

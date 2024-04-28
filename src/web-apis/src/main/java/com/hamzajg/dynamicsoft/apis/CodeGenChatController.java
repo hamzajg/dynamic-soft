@@ -1,5 +1,6 @@
 package com.hamzajg.dynamicsoft.apis;
 
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Flux;
 import java.util.Map;
 
 @RestController
+@RolesAllowed("user")
 public class CodeGenChatController {
 
     private final OllamaChatClient chatClient;
