@@ -1,11 +1,13 @@
 package com.hamzajg.dynamicsoft.apis;
 
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/boards")
+@RolesAllowed("user")
 public class BoardController {
     private final List<BoardDto> boards = new ArrayList<>();
 
