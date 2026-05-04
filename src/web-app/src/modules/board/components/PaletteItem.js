@@ -3,14 +3,14 @@ import {Tooltip} from "flowbite-react";
 const PaletteItem = ({ label, color, id, onDoubleClick }) => {
     return (
         <div
-            className="m-2 bg-[#0077b6] rounded-md p-6 cursor-pointer flex justify-center items-center hover:bg-[#005b8d]"
+            className="rounded-sm p-4 cursor-pointer flex justify-center items-center transition-all hover:translate-x-1 hover:shadow-lg hover:shadow-black/20 border border-white/10 select-none group active:scale-95"
             style={{backgroundColor: color}}
             onDoubleClick={(event) =>
                 onDoubleClick(event, {id, label, color, type: 'customNode'})
             }
         >
-            <Tooltip content="">
-                <span className="text-white font-semibold">{label}</span>
+            <Tooltip content="Double-click to add" placement="right">
+                <span className="text-white font-bold text-xs uppercase tracking-widest">{label}</span>
             </Tooltip>
         </div>
     );

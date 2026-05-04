@@ -3,41 +3,68 @@ import {NavLink, useLocation} from "react-router-dom";
 
 const Layout = ({ children }) => {
     const location = useLocation();
-    const segments = location.pathname.split('/');
-    const segmentsPath = location.pathname.split('/');
-    const path = segments.pop();
-    const id = 'board' === path ? segmentsPath[segmentsPath.length - 4] : ['generate', 'diagrams'].includes(path) ? segmentsPath[segmentsPath.length - 2] : undefined;
-    const activeLinkClass = "block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500";
-    const inactiveLinkClass = "block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+    const path = location.pathname.split('/').pop();
+    
+    const activeLinkClass = "block py-3 px-4 text-accent font-semibold transition-all duration-200 border-b-2 border-accent min-h-[44px] flex items-center";
+    const inactiveLinkClass = "block py-3 px-4 text-text-secondary hover:text-accent transition-all duration-200 border-b-2 border-transparent hover:border-accent-dim min-h-[44px] flex items-center";
+    
     return (
-        <div className="flex flex-col min-h-screen">
-            <nav className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600">
-                <div className="flex flex-wrap items-center justify-between mx-auto p-4">
-                    <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                        <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Dynamic Soft</span>
-                    </a>
-                    <div className="w-full md:w-auto" id="navbar-sticky">
-                        <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        <div className="flex flex-col min-h-screen bg-background text-text-primary font-sans selection:bg-accent/30">
+            <nav className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl saturate-[180%] border-b border-border-subtle shadow-lg shadow-black/20">
+                <div className="flex items-center justify-between mx-auto max-w-7xl px-6 h-16">
+                    <NavLink to="/" className="flex items-center space-x-2 group">
+                        <span className="self-center text-xl font-display tracking-widest text-accent group-hover:text-accent-hover transition-colors">
+                            DYNAMIC<span className="text-text-primary">SOFT</span>
+                        </span>
+                    </NavLink>
+                    
+                    <div className="hidden md:flex md:items-center md:space-x-2">
+                        <ul className="flex space-x-1 font-medium">
                             <li>
-                            <NavLink to="/" className={path === "" ? activeLinkClass : inactiveLinkClass}
-                                   aria-current="page">Home</NavLink>
+                                <NavLink to="/" className={location.pathname === "/" ? activeLinkClass : inactiveLinkClass}>
+                                    HOME
+                                </NavLink>
                             </li>
                             <li>
-                                <NavLink to="/solutions" className={['solutions', 'projects', 'diagrams', 'board', 'generate'].includes(path) ? activeLinkClass : inactiveLinkClass}>Solutions</NavLink>
+                                <NavLink to="/solutions" className={['solutions', 'projects', 'diagrams', 'board', 'generate'].includes(path) || location.pathname.includes('/solutions') ? activeLinkClass : inactiveLinkClass}>
+                                    SOLUTIONS
+                                </NavLink>
                             </li>
                             <li>
-                                <NavLink to="/teams" className={path === 'teams' ? activeLinkClass : inactiveLinkClass}>Teams</NavLink>
+                                <NavLink to="/teams" className={path === 'teams' ? activeLinkClass : inactiveLinkClass}>
+                                    TEAMS
+                                </NavLink>
                             </li>
                         </ul>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                         <NavLink to="/authentication" className="px-6 py-2.5 text-sm font-semibold text-background bg-accent rounded-sm hover:bg-accent-hover transition-all hover:shadow-[0_0_20px_rgba(0,212,255,0.25)] flex items-center justify-center min-h-[44px]">
+                            LOGIN
+                         </NavLink>
                     </div>
                 </div>
             </nav>
 
-            <main className="flex-grow bg-gray-100">{children}</main>
+            <main className="flex-grow animate-fade-in">
+                <div className="mx-auto max-w-7xl px-6 py-10">
+                    {children}
+                </div>
+            </main>
 
-            <footer className="bg-gray-800 text-white py-4 px-6 w-full">
-                <div className="mx-auto">
-                    <p>Dynamic Soft © Hamza Jguerim - 2024</p>
+            <footer className="bg-surface border-t border-border-subtle py-12 px-6">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start space-y-8 md:space-y-0">
+                    <div className="flex flex-col items-start max-w-sm">
+                        <span className="font-display text-base tracking-widest text-accent mb-4">DYNAMICSOFT</span>
+                        <p className="text-text-secondary text-sm leading-relaxed">
+                            Accelerating cloud transformation through business modeling. We provide high-performance solutions for modern enterprises.
+                        </p>
+                    </div>
+                    <div className="flex flex-col items-end space-y-4">
+                        <div className="text-text-tertiary text-xs tracking-wider uppercase">
+                            © 2026 Dynamic Soft — Designed for SMB Excellence
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>

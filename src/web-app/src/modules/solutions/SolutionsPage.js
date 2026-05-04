@@ -1,24 +1,24 @@
 import React, {useContext, useState} from 'react';
-import {Button} from 'flowbite-react';
 import {SolutionContext} from "./SolutionProvider";
 import {SolutionForm, SolutionsTable} from "./components";
+import {PageHeader, ContentCard} from "../../ui/Shared";
 
 const SolutionsPage = () => {
     const [showRightPanel, setShowRightPanel] = useState(false);
     const {solutions} = useContext(SolutionContext);
 
-    const handleAddSolution = () => {
-        setShowRightPanel(true);
-    };
-
     return (
-        <div className="p-6">
-            <div className="flex justify-between mb-4">
-                <h1 className="text-2xl font-bold">Solutions</h1>
-                <Button color="blue" onClick={handleAddSolution}>Add Solution</Button>
-            </div>
+        <div className="animate-fade-in">
+            <PageHeader 
+                title="SOLUTIONS" 
+                subtitle="Manage your domain-specific business solutions." 
+                actionLabel="+ NEW SOLUTION" 
+                onAction={() => setShowRightPanel(true)} 
+            />
 
-            <SolutionsTable solutions={solutions} />
+            <ContentCard noPadding={true}>
+                <SolutionsTable solutions={solutions} />
+            </ContentCard>
 
             <SolutionForm showRightPanel={showRightPanel} setShowRightPanel={setShowRightPanel}/>
         </div>
