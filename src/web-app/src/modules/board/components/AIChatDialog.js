@@ -3,71 +3,91 @@ import {Button, Card, Textarea} from 'flowbite-react';
 
 const AIChatDialog = () => {
     const [messages, setMessages] = useState([]);
-    const [message, setMessage] = useState([]);
-    const placeholderResponse = 'AI: Thinking...';
+    const [message, setMessage] = useState('');
+    const placeholderResponse = 'Thinking...';
 
     const handleInputChange = (event) => {
         setMessage(event.target.value);
     };
 
-    const handleUserMessage = async (message) => {
-        if(message === '')
+    const handleUserMessage = async () => {
+        if(message.trim() === '')
             return;
+        
+        const userMsg = message;
+        setMessage('');
+        
         setMessages((prevMessages) => [
             ...prevMessages,
-            { text: message, sender: 'user' },
-        ]);
-        setMessages((prevMessages) => [
-            ...prevMessages,
+            { text: userMsg, sender: 'user' },
             { text: placeholderResponse, sender: 'ai' },
         ]);
-        const aiResponse = await simulateAIResponse(message);
+        
+        const aiResponse = await simulateAIResponse(userMsg);
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             newMessages[newMessages.length - 1] = { text: aiResponse, sender: 'ai' }
             return newMessages;
         });
-        setMessage('');
     };
 
     const simulateAIResponse = async (userMessage) => {
-        const response = await fetch('http://localhost:8081/ai/generate?message=' + userMessage, {
-            method: 'GET',
-        });
+        try {
+            const response = await fetch('http://localhost:8081/ai/generate?message=' + encodeURIComponent(userMessage), {
+                method: 'GET',
+            });
 
-        if (response.ok) {
-            const data = await response.json();
-            return data.generation;
-        } else {
-            console.error('Error fetching AI response:', response.status);
-            return 'AI: An error occurred. Please try again later.';
+            if (response.ok) {
+                const data = await response.json();
+                return data.generation;
+            } else {
+                return 'An error occurred. Please try again later.';
+            }
+        } catch (e) {
+            return 'AI Service unavailable. Using local simulation... (Mock response for ' + userMessage + ')';
         }
     };
 
     return (
-        <div className="ai-chat-dialog h-screen">
-            <div className="ai-chat-messages overflow-y-auto h-4/6">
-                {messages.map((message, index) => (
-                    <Card key={index} className={`ai-chat-message bg-gray-${message.sender === 'user' ? '400' : '100'} m-2`}>
-                        <div className={` text-gray-700 dark:text-gray-50 text-${message.sender === 'user' ? 'left' : 'right'}`}>
-                            {message.text}
+        <div className="flex flex-col h-[500px]">
+            <div className="flex-grow overflow-y-auto space-y-4 mb-6 pr-2 scrollbar-thin scrollbar-thumb-accent/20">
+                {messages.length === 0 && (
+                    <div className="text-center py-10">
+                        <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span className="text-xl">🧠</span>
                         </div>
-                    </Card>
+                        <p className="text-text-tertiary text-xs font-medium px-6">
+                            I am your architecture assistant. Ask me to refine your models or generate code.
+                        </p>
+                    </div>
+                )}
+                {messages.map((msg, index) => (
+                    <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] p-4 rounded-md text-sm ${
+                            msg.sender === 'user' 
+                            ? 'bg-accent text-background font-bold' 
+                            : 'bg-surface-elevated border border-border-subtle text-text-primary font-medium'
+                        }`}>
+                            {msg.text}
+                        </div>
+                    </div>
                 ))}
             </div>
-            <div className="ai-chat-input flex items-center gap-2 h-1/6">
+            <div className="space-y-3">
                 <Textarea
-                    type="text"
                     value={message}
-                    placeholder="Type your message..."
-                    className="flex-grow rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    placeholder="Refactor this aggregate..."
+                    className="w-full bg-surface-elevated border-border-subtle text-text-primary focus:border-accent focus:ring-accent/20 placeholder-text-tertiary/50 rounded-md text-sm"
                     onChange={handleInputChange}
                     rows={3}
                 />
-                <Button onClick={() => handleUserMessage(document.querySelector('.ai-chat-input textarea').value)}>
-                    >
-                </Button>
+                <button 
+                    onClick={handleUserMessage}
+                    className="w-full py-3 bg-accent hover:bg-accent-hover text-background font-bold rounded-sm transition-all uppercase tracking-widest text-xs"
+                >
+                    SEND PROMPT
+                </button>
             </div>
         </div>
     );

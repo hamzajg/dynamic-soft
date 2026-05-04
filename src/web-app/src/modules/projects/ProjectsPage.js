@@ -1,10 +1,10 @@
 import React, {useContext, useState} from 'react';
-import {Button, Card} from 'flowbite-react';
 import {ProjectContext} from "./ProjectProvider";
 import {useNavigate, useParams} from "react-router-dom";
 import {SolutionContext} from "../solutions/SolutionProvider";
 import domains from "../solutions/Domains.json";
 import {ProjectForm, ProjectsTable} from "./components";
+import {Banner, PageHeader, ContentCard} from "../../ui/Shared";
 
 const ProjectsPage = () => {
     const {id} = useParams();
@@ -15,29 +15,31 @@ const ProjectsPage = () => {
     const {findProjectsBySolutionId} = useContext(ProjectContext);
     const projects = findProjectsBySolutionId(id)
 
-    const handleAddProject = () => {
-        setShowRightPanel(true);
-    };
-
     if (!solution) {
         navigate("/solutions");
+        return null;
     }
 
-    return (
-        <div className="p-6">
-            <Card className="mb-2">
-                <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    {solution.name}
-                </h5>
-                <p>Domain: {domains.find(d => d.id == solution.domain).name}</p>
-                <p>Description: {solution.description}</p>
-            </Card>
-            <div className="flex justify-between mb-4">
-                <h1 className="text-2xl font-bold">Projects (Other Names: Modules, Bounded Context)</h1>
-                <Button color="blue" onClick={handleAddProject}>Add Project</Button>
-            </div>
+    const domainName = domains.find(d => d.id == solution.domain)?.name || 'Other';
 
-            <ProjectsTable projects={projects} />
+    return (
+        <div className="animate-fade-in">
+            <Banner 
+                title={solution.name} 
+                subtitle={solution.description} 
+                tag={domainName} 
+            />
+
+            <PageHeader 
+                title="PROJECTS" 
+                subtitle="Modules / Bounded Contexts" 
+                actionLabel="+ ADD PROJECT" 
+                onAction={() => setShowRightPanel(true)} 
+            />
+
+            <ContentCard noPadding={true}>
+                <ProjectsTable projects={projects} />
+            </ContentCard>
 
             <ProjectForm solutionId={id} showRightPanel={showRightPanel} setShowRightPanel={setShowRightPanel}/>
         </div>
