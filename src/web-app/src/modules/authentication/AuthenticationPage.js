@@ -1,8 +1,22 @@
-import React from "react";
-import {TextInput} from "flowbite-react";
-import {Link} from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { TextInput } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
+import { AuthenticationContext } from "./AuthenticatonProvider";
 
 const AuthenticationPage = () =>{
+    const { login } = useContext(AuthenticationContext);
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        await login(email, password);
+        navigate('/');
+    };
+
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] py-12 animate-fade-in">
             <div className="w-full max-w-md bg-surface border border-border-subtle p-10 rounded-lg shadow-2xl shadow-black/50 relative overflow-hidden">
@@ -13,13 +27,15 @@ const AuthenticationPage = () =>{
                     <p className="text-text-tertiary text-sm font-medium tracking-wide">Enter your credentials to access the grid.</p>
                 </div>
 
-                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.2em] ml-1">Email Identity</label>
-                        <TextInput 
-                            type="email" 
-                            placeholder="user@dynamicsoft.cloud"
-                            required
+                            <TextInput 
+                                type="email" 
+                                placeholder="user@dynamicsoft.cloud"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             theme={{
                                 field: {
                                     input: {
@@ -39,6 +55,8 @@ const AuthenticationPage = () =>{
                             type="password" 
                             placeholder="••••••••"
                             required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             theme={{
                                 field: {
                                     input: {
@@ -61,9 +79,9 @@ const AuthenticationPage = () =>{
                     </div>
 
                     <div className="pt-6">
-                        <Link to="/" className="w-full py-4 bg-accent hover:bg-accent-hover text-background font-bold rounded-sm transition-all shadow-lg hover:shadow-accent/30 min-h-[44px] flex items-center justify-center uppercase tracking-[0.15em] text-sm">
-                            Authorize Access
-                        </Link>
+                        <button type="submit" disabled={loading} className="w-full py-4 bg-accent hover:bg-accent-hover text-background font-bold rounded-sm transition-all shadow-lg hover:shadow-accent/30 min-h-[44px] flex items-center justify-center uppercase tracking-[0.15em] text-sm">
+                            {loading ? 'Authorizing...' : 'Authorize Access'}
+                        </button>
                     </div>
                 </form>
 
