@@ -10,6 +10,7 @@ import TeamsPage from "./modules/teams/TeamsPage";
 import SolutionsPage from "./modules/solutions/SolutionsPage";
 import PrivateRoute from "./utilities/PrivateRoute";
 import AuthenticationPage from "./modules/authentication/AuthenticationPage";
+import MarketplacePage from "./modules/marketplace/MarketplacePage";
 
 const App = () => {
     return (
@@ -21,6 +22,7 @@ const App = () => {
                         <Route path="/authentication" element={<AuthenticationPage/>}/>
                         <Route path="/solutions" element={<PrivateRoute component={<SolutionsPage/>} />}/>
                         <Route path="/solutions/:id/projects" element={<PrivateRoute component={<ProjectsPage/>} />}/>
+                        <Route path="/marketplace" element={<PrivateRoute component={<MarketplacePage/>} />}/>
                         <Route path="/teams" element={<PrivateRoute component={<TeamsPage/>} />}/>
                         <Route path="/projects/:id/diagrams" element={<PrivateRoute component={<DiagramsPage/>} />}/>
                         <Route path="/projects/:id/diagrams/:id/board" element={<PrivateRoute component={<BoardPage/>} />}/>

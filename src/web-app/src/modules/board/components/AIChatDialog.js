@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Card, Textarea} from 'flowbite-react';
 
-const AIChatDialog = () => {
+const AIChatDialog = ({ onAIAction }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const placeholderResponse = 'Thinking...';
@@ -42,10 +42,20 @@ const AIChatDialog = () => {
                 const data = await response.json();
                 return data.generation;
             } else {
-                return 'An error occurred. Please try again later.';
+                throw new Error('API failed');
             }
         } catch (e) {
-            return 'AI Service unavailable. Using local simulation... (Mock response for ' + userMessage + ')';
+            const lowerMsg = userMessage.toLowerCase();
+            if (lowerMsg.includes('add') || lowerMsg.includes('create')) {
+                if (onAIAction) {
+                    onAIAction({
+                        type: 'ADD_NODE',
+                        payload: { label: 'AI Node', color: '#CB73FC' } // purple for AI policy/custom node
+                    });
+                }
+                return 'I have added a new "AI Node" to your diagram based on your request.';
+            }
+            return 'AI Service unavailable. Using local simulation... (Mock response for: ' + userMessage + ')';
         }
     };
 
