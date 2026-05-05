@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Layout from "./ui/Layout";
 import ProjectsPage from "./modules/projects/ProjectsPage";
 import {ModulesProvider} from "./modules/ModulesProvider";
+import {AppQueryProvider} from "./AppQueryProvider";
 import DiagramsPage from "./modules/diagrams/DiagramsPage";
 import BoardPage from "./modules/board/BoardPage";
 import TeamsPage from "./modules/teams/TeamsPage";
@@ -15,20 +16,22 @@ import MarketplacePage from "./modules/marketplace/MarketplacePage";
 const App = () => {
     return (
         <Router>
-            <Layout>
-                <ModulesProvider>
-                    <Routes>
-                        <Route path="/" element={<HomePage/>}/>
-                        <Route path="/authentication" element={<AuthenticationPage/>}/>
-                        <Route path="/solutions" element={<PrivateRoute component={<SolutionsPage/>} />}/>
-                        <Route path="/solutions/:id/projects" element={<PrivateRoute component={<ProjectsPage/>} />}/>
-                        <Route path="/marketplace" element={<PrivateRoute component={<MarketplacePage/>} />}/>
-                        <Route path="/teams" element={<PrivateRoute component={<TeamsPage/>} />}/>
-                        <Route path="/projects/:id/diagrams" element={<PrivateRoute component={<DiagramsPage/>} />}/>
-                        <Route path="/projects/:id/diagrams/:id/board" element={<PrivateRoute component={<BoardPage/>} />}/>
-                    </Routes>
-                </ModulesProvider>
-            </Layout>
+            <AppQueryProvider>
+                <Layout>
+                    <ModulesProvider>
+                        <Routes>
+                            <Route path="/" element={<HomePage/>}/>
+                            <Route path="/authentication" element={<AuthenticationPage/>}/>
+                            <Route path="/solutions" element={<PrivateRoute component={<SolutionsPage/>} />}/>
+                            <Route path="/solutions/:id/projects" element={<PrivateRoute component={<ProjectsPage/>} />}/>
+                            <Route path="/marketplace" element={<PrivateRoute component={<MarketplacePage/>} />}/>
+                            <Route path="/teams" element={<PrivateRoute component={<TeamsPage/>} />}/>
+                            <Route path="/projects/:id/diagrams" element={<PrivateRoute component={<DiagramsPage/>} />}/>
+                            <Route path="/projects/:id/diagrams/:id/board" element={<PrivateRoute component={<BoardPage/>} />}/>
+                        </Routes>
+                    </ModulesProvider>
+                </Layout>
+            </AppQueryProvider>
         </Router>
     );
 };
