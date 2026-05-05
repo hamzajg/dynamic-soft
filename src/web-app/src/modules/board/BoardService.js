@@ -1,60 +1,29 @@
-const BoardService = {
-    postBoard,
-    putBoard,
-    fetchBoards
-}
+const BASE_URL = 'http://localhost:8081/boards';
 
-async function postBoard(newBoard) {
-    try {
-        const response = await fetch('http://localhost:8081/boards', {
+const BoardService = {
+    postBoard: async (newBoard) => {
+        const response = await fetch(BASE_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newBoard),
         });
-
-        if (response.ok) {
-            console.error('Board added:');
-        } else {
-            console.error('Error adding board:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Error adding board:', error);
-    }
-}
-
-async function putBoard(updatedBoard) {
-    try {
-        const response = await fetch(`http://localhost:8081/boards/${updatedBoard.id}`, {
+        if (!response.ok) throw new Error('Failed to post board');
+        return response.json();
+    },
+    putBoard: async (updatedBoard) => {
+        const response = await fetch(`${BASE_URL}/${updatedBoard.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedBoard),
         });
-
-        if (response.ok) {
-            console.error('Board added:');
-        } else {
-            console.error('Error adding board:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Error adding board:', error);
+        if (!response.ok) throw new Error('Failed to update board');
+        return response.json();
+    },
+    fetchBoards: async () => {
+        const response = await fetch(BASE_URL);
+        if (!response.ok) throw new Error('Failed to fetch boards');
+        return response.json();
     }
-}
+};
 
-async function fetchBoards() {
-    try {
-        const response = await fetch('http://localhost:8081/boards');
-        if (response.ok) {
-            return await response.json()
-        } else {
-            console.error('Error fetching boards:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Error fetching boards:', error);
-    }
-}
-
-export {BoardService}
+export { BoardService };

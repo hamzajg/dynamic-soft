@@ -20,14 +20,14 @@ const AIChatDialog = ({ onAIAction }) => {
         setMessages((prevMessages) => [
             ...prevMessages,
             { text: userMsg, sender: 'user' },
-            { text: placeholderResponse, sender: 'ai' },
+            { text: 'Thinking...', sender: 'ai' },
         ]);
         
         const aiResponse = await simulateAIResponse(userMsg);
 
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
-            newMessages[newMessages.length - 1] = { text: aiResponse, sender: 'ai' }
+            newMessages[newMessages.length - 1] = { ...aiResponse, sender: 'ai' }
             return newMessages;
         });
     };
@@ -40,23 +40,30 @@ const AIChatDialog = ({ onAIAction }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                return data.generation;
+                try {
+                    // Check if the response contains a JSON proposal
+                    const parsed = JSON.parse(data.generation);
+                    return { text: 'I have a proposal for you:', proposal: parsed };
+                } catch {
+                    return { text: data.generation };
+                }
             } else {
                 throw new Error('API failed');
             }
         } catch (e) {
-            const lowerMsg = userMessage.toLowerCase();
-            if (lowerMsg.includes('add') || lowerMsg.includes('create')) {
-                if (onAIAction) {
-                    onAIAction({
-                        type: 'ADD_NODE',
-                        payload: { label: 'AI Node', color: '#CB73FC' } // purple for AI policy/custom node
-                    });
-                }
-                return 'I have added a new "AI Node" to your diagram based on your request.';
-            }
-            return 'AI Service unavailable. Using local simulation... (Mock response for: ' + userMessage + ')';
+            return { text: 'AI Service unavailable. Simulation active.' };
         }
+    };
+
+    const handleApproveProposal = (proposal) => {
+        if (onAIAction) {
+            onAIAction(proposal);
+        }
+        setMessages((prev) => prev.map(m => m.proposal === proposal ? { ...m, status: 'approved' } : m));
+    };
+
+    const handleRejectProposal = (proposal) => {
+        setMessages((prev) => prev.map(m => m.proposal === proposal ? { ...m, status: 'rejected' } : m));
     };
 
     return (
@@ -79,7 +86,16 @@ const AIChatDialog = ({ onAIAction }) => {
                             ? 'bg-accent text-background font-bold' 
                             : 'bg-surface-elevated border border-border-subtle text-text-primary font-medium'
                         }`}>
-                            {msg.text}
+                            <div>{msg.text}</div>
+                            {msg.proposal && !msg.status && (
+                                <div className="mt-3 flex gap-2">
+                                    <button onClick={() => handleApproveProposal(msg.proposal)} className="px-3 py-1 bg-green-600 text-white rounded">Approve</button>
+                                    <button onClick={() => handleRejectProposal(msg.proposal)} className="px-3 py-1 bg-red-600 text-white rounded">Reject</button>
+                                </div>
+                            )}
+                            {msg.status && (
+                                <div className="mt-2 font-bold text-xs uppercase">{msg.status}</div>
+                            )}
                         </div>
                     </div>
                 ))}

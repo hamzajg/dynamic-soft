@@ -1,37 +1,34 @@
 package com.hamzajg.dynamicsoft.apis;
 
+import com.hamzajg.dynamicsoft.services.BoardService;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/boards")
 @RolesAllowed("user")
 public class BoardController {
-    private final List<BoardDto> boards = new ArrayList<>();
+    private final BoardService boardService;
+
+    @Autowired
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
 
     @GetMapping
     public List<BoardDto> getAllBoards() {
-        return boards;
+        return boardService.getAllBoards();
     }
 
     @PostMapping
     public BoardDto createBoard(@RequestBody BoardDto boardDto) {
-        boards.add(boardDto);
-        return boardDto;
+        return boardService.createBoard(boardDto);
     }
 
     @PutMapping("/{id}")
     public BoardDto updateBoard(@PathVariable("id") String id, @RequestBody BoardDto boardDto) {
-        BoardDto existingBoard = boards.stream()
-                .filter(board -> board.id.equals(id))
-                .findFirst()
-                .orElse(null);
-        if (existingBoard != null) {
-            existingBoard.nodes = boardDto.nodes;
-            existingBoard.edges = boardDto.edges;
-        }
-        return existingBoard;
+        return boardService.updateBoard(id, boardDto).orElse(null);
     }
 }
