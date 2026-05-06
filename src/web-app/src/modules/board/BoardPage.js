@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState, useMemo} from 'react';
 import ReactFlow, {
     addEdge,
     Background,
@@ -16,8 +16,13 @@ import CodeEditor from "@uiw/react-textarea-code-editor";
 import {AIChatDialog, CustomNode, PaletteItem} from "./components";
 import { FiDatabase, FiUser, FiZap, FiPlay, FiSearch, FiShield, FiCheckCircle, FiArrowRight, FiCode, FiMessageSquare, FiX } from "react-icons/fi";
 
-// we define the nodeTypes outside of the component to prevent re-renderings
-const nodeTypes = {custom: (props) => <CustomNode {...props}/>};
+// Context for UI state that nodes need access to without triggering nodeTypes re-renders
+export const BoardUIContext = React.createContext();
+
+const nodeTypes = {
+    custom: CustomNode
+};
+
 function BoardPage() {
     const {id} = useParams();
     const {saveFlowModel, findBoardById, handleSaveDiagramAsCodeChange, generateJsonModel} = useContext(BoardsContext);
@@ -26,10 +31,34 @@ function BoardPage() {
     const [jsonError, setJsonError] = useState('');
     const [isCodeDrawerOpen, setIsCodeDrawerOpen] = useState(false);
     const [isAIChatOpen, setIsAIChatOpen] = useState(false);
-    const [reactFlowInstance, setReactFlowInstance] = useState(null); // eslint-disable-line no-unused-vars
+    const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [selectedNodeId, setSelectedNodeId] = useState(null);
+    const [codeLensNodeId, setCodeLensNodeId] = useState(null);
     const diagram = findDiagramById(id);
+
+    const handleSaveNodeCode = useCallback((updatedNode) => {
+        setNodes((nds) => {
+            const newNodes = nds.map((node) => 
+                node.id === updatedNode.id ? { ...node, ...updatedNode } : node
+            );
+            // Trigger save after state update
+            setTimeout(() => {
+                saveFlowModel(id, newNodes, edges);
+                setDiagramCode(JSON.stringify(generateJsonModel(id, newNodes, edges), undefined, 2));
+            }, 0);
+            return newNodes;
+        });
+    }, [id, edges, saveFlowModel, generateJsonModel, setDiagramCode, setNodes]);
+
+    const handleAskAIForNode = useCallback((node) => {
+        setIsAIChatOpen(true);
+    }, []);
+
+    const toggleCodeLens = useCallback((nodeId) => {
+        setCodeLensNodeId(prev => prev === nodeId ? null : nodeId);
+    }, []);
 
     useEffect(() => {
         const storedModel = findBoardById(id);
@@ -47,21 +76,73 @@ function BoardPage() {
 
     const onInit = useCallback((instance) => setReactFlowInstance(instance), []);
 
+    const onNodeClick = useCallback((event, node) => {
+        setSelectedNodeId(node.id);
+    }, []);
+
+    const onToggleCodeLens = useCallback((nodeId) => {
+        setCodeLensNodeId(prev => prev === nodeId ? null : nodeId);
+    }, []);
+
+    const onPaneClick = useCallback((event) => {
+        // Detect double click manually
+        if (event.detail === 2) {
+            if (!reactFlowInstance) return;
+
+            const reactFlowBounds = event.target.closest('.react-flow').getBoundingClientRect();
+            const position = reactFlowInstance.project({
+                x: event.clientX - reactFlowBounds.left,
+                y: event.clientY - reactFlowBounds.top,
+            });
+
+            const newNodeId = uuidv4();
+            const newNode = {
+                id: newNodeId,
+                type: "custom",
+                data: { label: "New Node", color: "#1e88e5" },
+                position,
+                sourcePosition: Position.Right,
+                targetPosition: Position.Left,
+                style: { backgroundColor: "#1e88e5" },
+            };
+
+            setNodes((nds) => {
+                const updatedNodes = nds.concat(newNode);
+                // Save state after update
+                setTimeout(() => {
+                    saveFlowModel(id, updatedNodes, edges);
+                    setDiagramCode(JSON.stringify(generateJsonModel(id, updatedNodes, edges), undefined, 2));
+                }, 0);
+                return updatedNodes;
+            });
+            setSelectedNodeId(newNodeId);
+            setCodeLensNodeId(newNodeId);
+        } else {
+            setSelectedNodeId(null);
+            setCodeLensNodeId(null);
+        }
+    }, [reactFlowInstance, edges, id, saveFlowModel, generateJsonModel, setNodes, setSelectedNodeId, setCodeLensNodeId, setDiagramCode]);
+
     const onPaletteItemDoubleClick = (event, element) => {
         if (element.type === 'customNode') {
             const newNodeId = uuidv4();
-            setNodes((nodes) =>
-                nodes.concat({
-                    id: newNodeId,
-                    type: "custom",
-                    height: '30px',
-                    data: {label: element.label, color: element.color},
-                    position: {x: event.clientX - 100, y: event.clientY - 50},
-                    sourcePosition: Position.Right,
-                    targetPosition: Position.Left,
-                    style: {backgroundColor: element.color},
-                })
-            );
+            const newNode = {
+                id: newNodeId,
+                type: "custom",
+                data: {label: element.label, color: element.color},
+                position: {x: event.clientX - 100, y: event.clientY - 50},
+                sourcePosition: Position.Right,
+                targetPosition: Position.Left,
+                style: {backgroundColor: element.color},
+            };
+            
+            setNodes((nds) => nds.concat(newNode));
+            setSelectedNodeId(newNodeId);
+            setCodeLensNodeId(newNodeId);
+
+            const updatedNodes = [...nodes, newNode];
+            saveFlowModel(id, updatedNodes, edges);
+            setDiagramCode(JSON.stringify(generateJsonModel(id, updatedNodes, edges), undefined, 2));
         }
     };
 
@@ -90,13 +171,12 @@ function BoardPage() {
 
     const onNodesChanged = (events) => {
         onNodesChange(events);
-        events
-            .filter(event => event.type !== 'remove')
-            .forEach(() => {
-                saveFlowModel(id, nodes, edges);
-                setDiagramCode(JSON.stringify(generateJsonModel(id, nodes, edges), undefined, 2));
-            });
     };
+
+    const onNodeDragStop = useCallback(() => {
+        saveFlowModel(id, nodes, edges);
+        setDiagramCode(JSON.stringify(generateJsonModel(id, nodes, edges), undefined, 2));
+    }, [id, nodes, edges, saveFlowModel, generateJsonModel, setDiagramCode]);
 
     const onNodesDeleted = (deletedNode) => {
         const newNodes = deleteElements(nodes, deletedNode);
@@ -130,10 +210,22 @@ function BoardPage() {
         }
     };
 
+
+    const codeLensNode = useMemo(() => 
+        nodes.find(n => n.id === codeLensNodeId), 
+        [nodes, codeLensNodeId]
+    ); // We still need this for context, but it's not rendered here anymore
+
     return (
-        <div className="h-[calc(100vh-64px)] overflow-hidden relative bg-background">
-            {/* Main Board Area */}
-            <ReactFlow
+        <BoardUIContext.Provider value={{ 
+            codeLensNodeId, 
+            toggleCodeLens, 
+            onSave: handleSaveNodeCode, 
+            onAskAI: handleAskAIForNode 
+        }}>
+            <div className="h-[calc(100vh-64px)] overflow-hidden relative bg-background">
+                {/* Main Board Area */}
+                <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesDelete={onNodesDeleted}
@@ -141,6 +233,9 @@ function BoardPage() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 onInit={onInit}
+                onNodeClick={onNodeClick}
+                onPaneClick={onPaneClick}
+                onNodeDragStop={onNodeDragStop}
                 snapToGrid={true}
                 snapGrid={[15, 15]}
                 nodeTypes={nodeTypes}
@@ -203,7 +298,8 @@ function BoardPage() {
                     <div className="flex gap-2 items-center">
                         <button 
                             onClick={() => handleSaveDiagramAsCodeChange(diagram, diagramCode)}
-                            className="px-4 py-1.5 bg-accent text-background text-[10px] font-bold rounded-sm uppercase hover:bg-accent-hover transition-all shadow-md active:scale-95"
+                            disabled={!diagram}
+                            className={`px-4 py-1.5 text-background text-[10px] font-bold rounded-sm uppercase transition-all shadow-md active:scale-95 ${!diagram ? 'bg-text-tertiary cursor-not-allowed opacity-50' : 'bg-accent hover:bg-accent-hover'}`}
                         >
                             Save
                         </button>
@@ -212,6 +308,35 @@ function BoardPage() {
                         </button>
                     </div>
                 </div>
+
+                {/* Optional: Focused Node View */}
+                {selectedNodeId && nodes.find(n => n.id === selectedNodeId) && (
+                    <div className="p-4 bg-accent/5 border-b border-border-subtle animate-in fade-in duration-300">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="text-[10px] font-bold text-accent uppercase tracking-widest">Focused Node JSON</div>
+                            <button 
+                                onClick={() => setSelectedNodeId(null)}
+                                className="text-[10px] text-text-tertiary hover:text-white uppercase"
+                            >
+                                Clear focus
+                            </button>
+                        </div>
+                        <CodeEditor 
+                            value={JSON.stringify(nodes.find(n => n.id === selectedNodeId), null, 2)}
+                            language="json"
+                            readOnly
+                            padding={10}
+                            style={{
+                                backgroundColor: "rgba(0,0,0,0.2)",
+                                fontSize: "11px",
+                                fontFamily: "'JetBrains Mono', monospace",
+                                color: "#f0f4f8",
+                                borderRadius: "4px"
+                            }}
+                        />
+                    </div>
+                )}
+
                 <div className="overflow-y-auto h-[calc(100%-60px)] relative">
                     {jsonError && (
                         <div className="absolute top-0 left-0 w-full bg-red-900/40 text-red-400 font-medium tracking-wide text-[10px] p-2 z-10 border-b border-red-500/30 break-words">
@@ -248,7 +373,7 @@ function BoardPage() {
                         </button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-4">
-                        <AIChatDialog onAIAction={handleAIAction} />
+                        <AIChatDialog onAIAction={handleAIAction} selectedNode={nodes.find(n => n.id === selectedNodeId)} />
                     </div>
                 </div>
             )}
@@ -261,7 +386,8 @@ function BoardPage() {
             >
                 {isAIChatOpen ? <FiX className="text-2xl" /> : <FiMessageSquare className="text-2xl" />}
             </button>
-        </div>
+            </div>
+        </BoardUIContext.Provider>
     );
 }
 
