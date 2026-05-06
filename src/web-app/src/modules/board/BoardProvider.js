@@ -73,6 +73,7 @@ const BoardsProvider = ({ children }) => {
     };
 
     const handleSaveDiagramAsCodeChange = async (diagram, diagramCode) => {
+        if (!diagram) return;
         const defaultPath =  "domain-context-"+ diagram.type +".json";
         window.postMessage({type: "createFile", filePath: "/domain-context-"+ diagram.type +".json", fileContent: diagramCode}, '*');
         await Utilities.showSaveFilePickerFor(defaultPath, diagramCode)

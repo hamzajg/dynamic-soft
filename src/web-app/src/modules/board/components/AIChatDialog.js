@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Textarea} from 'flowbite-react';
 
-const AIChatDialog = ({ onAIAction }) => {
+const AIChatDialog = ({ onAIAction, selectedNode }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
 
@@ -34,7 +34,8 @@ const AIChatDialog = ({ onAIAction }) => {
 
     const simulateAIResponse = async (userMessage) => {
         try {
-            const response = await fetch('http://localhost:8081/ai/generate?message=' + encodeURIComponent(userMessage), {
+            const contextParam = selectedNode ? `&context=${encodeURIComponent(JSON.stringify(selectedNode))}` : '';
+            const response = await fetch('http://localhost:8081/ai/generate?message=' + encodeURIComponent(userMessage) + contextParam, {
                 method: 'GET',
             });
 
@@ -68,6 +69,17 @@ const AIChatDialog = ({ onAIAction }) => {
 
     return (
         <div className="flex flex-col h-[500px]">
+            {selectedNode && (
+                <div className="mb-4 p-3 bg-accent/10 border border-accent/20 rounded-md flex items-center gap-3 animate-in slide-in-from-top-2 duration-300">
+                    <div className="w-8 h-8 rounded bg-accent/20 flex items-center justify-center text-accent text-sm">
+                        ✨
+                    </div>
+                    <div>
+                        <div className="text-[10px] font-bold text-accent uppercase tracking-tighter">Editing Context</div>
+                        <div className="text-xs text-text-primary font-bold">{selectedNode.data.label}</div>
+                    </div>
+                </div>
+            )}
             <div className="flex-grow overflow-y-auto space-y-4 mb-6 pr-2 scrollbar-thin scrollbar-thumb-accent/20">
                 {messages.length === 0 && (
                     <div className="text-center py-10">
