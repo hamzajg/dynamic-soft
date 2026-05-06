@@ -65,9 +65,13 @@ const Layout = ({ children }) => {
             </nav>
 
             <main className="flex-grow pt-16 animate-fade-in">
-                <div className="mx-auto max-w-7xl px-6 py-10">
-                    {children}
-                </div>
+                {isBoardPage ? (
+                    children
+                ) : (
+                    <div className="mx-auto max-w-7xl px-6 py-10">
+                        {children}
+                    </div>
+                )}
             </main>
 
             {!isBoardPage && (

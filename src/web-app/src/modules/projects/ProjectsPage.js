@@ -20,7 +20,7 @@ const ProjectsPage = () => {
         return null;
     }
 
-    const domainName = domains.find(d => d.id == solution.domain)?.name || 'Other';
+    const domainName = domains.find(d => d.id === solution.domain)?.name || 'Other';
 
     return (
         <div className="animate-fade-in">

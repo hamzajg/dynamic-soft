@@ -24,24 +24,30 @@ const BoardsProvider = ({ children }) => {
                 updatedAt: new Date().toISOString()
             };
             setBoards(updatedBoards);
-            BoardService.putBoard({...updatedBoards[existingBoardIndex], nodes: JSON.stringify(updatedBoards[existingBoardIndex].nodes), edges: JSON.stringify(updatedBoards[existingBoardIndex].edges)})
-
+            // Fire-and-forget backend sync — fails silently when backend is offline
+            BoardService.putBoard({...updatedBoards[existingBoardIndex], nodes: JSON.stringify(updatedBoards[existingBoardIndex].nodes), edges: JSON.stringify(updatedBoards[existingBoardIndex].edges)}).catch(() => {});
         } else {
             newBoard.createdAt = new Date().toISOString();
             newBoard.updatedAt = new Date().toISOString();
             setBoards([...boards, newBoard]);
-            BoardService.postBoard({...newBoard, nodes: JSON.stringify(newBoard.nodes), edges: JSON.stringify(newBoard.edges)})
+            // Fire-and-forget backend sync — fails silently when backend is offline
+            BoardService.postBoard({...newBoard, nodes: JSON.stringify(newBoard.nodes), edges: JSON.stringify(newBoard.edges)}).catch(() => {});
         }
     };
 
     useEffect(() => {
+        // Try to hydrate from backend; fall back to localStorage silently if unavailable
         BoardService.fetchBoards()
-            .then(result =>
-                setBoards(result?.map(board => ({
-                    ...board,
-                    nodes: JSON.parse(board.nodes),
-                    edges: JSON.parse(board.edges),
-                }))));
+            .then(result => {
+                if (result && result.length > 0) {
+                    setBoards(result.map(board => ({
+                        ...board,
+                        nodes: JSON.parse(board.nodes),
+                        edges: JSON.parse(board.edges),
+                    })));
+                }
+            })
+            .catch(() => {}); // backend offline — localStorage state is used
     }, []);
 
     const findBoardById = (id) => {

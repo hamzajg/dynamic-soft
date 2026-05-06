@@ -75,7 +75,7 @@ const AuthenticationPage = () =>{
                             <input id="remember" type="checkbox" className="w-4 h-4 rounded-sm border-border-subtle bg-surface-elevated text-accent focus:ring-accent/20 focus:ring-offset-background" />
                             <label htmlFor="remember" className="ml-2 text-xs text-text-secondary font-medium">Remember me</label>
                         </div>
-                        <a href="#" className="text-xs text-accent hover:text-accent-hover font-bold uppercase tracking-wider transition-colors">Forgot key?</a>
+                        <button type="button" className="text-xs text-accent hover:text-accent-hover font-bold uppercase tracking-wider transition-colors">Forgot key?</button>
                     </div>
 
                     <div className="pt-6">
@@ -87,7 +87,7 @@ const AuthenticationPage = () =>{
 
                 <div className="mt-10 pt-8 border-t border-border-subtle text-center">
                     <p className="text-text-tertiary text-xs font-medium">
-                        New to the ecosystem? <a href="#" className="text-accent hover:text-accent-hover font-bold transition-colors">Create Identity</a>
+                        New to the ecosystem? <button type="button" className="text-accent hover:text-accent-hover font-bold transition-colors">Create Identity</button>
                     </p>
                 </div>
             </div>

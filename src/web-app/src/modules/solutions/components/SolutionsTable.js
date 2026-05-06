@@ -27,7 +27,7 @@ const SolutionsTable = ({solutions}) => (
                         </td>
                         <td className="px-6 py-5">
                             <StatusBadge>
-                                {domains.find(d => d.id == solution.domain)?.name || 'Other'}
+                                {domains.find(d => d.id === solution.domain)?.name || 'Other'}
                             </StatusBadge>
                         </td>
                         <td className="px-6 py-5 text-right">
