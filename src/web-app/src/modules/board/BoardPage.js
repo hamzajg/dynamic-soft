@@ -194,7 +194,7 @@ function BoardPage() {
             </div>
 
             {/* Overlay Drawer: Diagram as Code */}
-            <div className={`absolute top-0 right-0 h-full w-96 bg-surface/95 backdrop-blur-2xl border-l border-border-subtle shadow-2xl z-30 transition-transform duration-300 transform ${isCodeDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className={`fixed top-16 right-0 h-[calc(100vh-64px)] w-96 bg-surface/95 backdrop-blur-2xl border-l border-border-subtle shadow-2xl z-40 transition-transform duration-300 transform ${isCodeDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="p-4 border-b border-border-subtle flex justify-between items-center bg-surface-elevated/50">
                     <div className="flex items-center gap-2">
                         <FiCode className="text-accent" />

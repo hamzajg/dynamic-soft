@@ -25,6 +25,7 @@ const ProjectForm = ({solutionId, showRightPanel, setShowRightPanel}) => {
             open={showRightPanel} 
             onClose={() => setShowRightPanel(false)} 
             position="right"
+            style={{ top: '64px' }}
             className="bg-surface border-l border-border-subtle w-full max-w-md"
         >
             <div className="p-6 border-b border-border-subtle bg-surface-elevated flex items-center justify-between">
