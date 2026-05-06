@@ -1,4 +1,4 @@
-import {Button, Drawer, Textarea, TextInput} from "flowbite-react";
+import {Drawer, Textarea, TextInput} from "flowbite-react";
 import Multiselect from "multiselect-react-dropdown";
 import React, {useContext, useState} from "react";
 import {ProjectContext} from "../ProjectProvider";
@@ -9,8 +9,8 @@ const ProjectForm = ({solutionId, showRightPanel, setShowRightPanel}) => {
     const {teams} = useContext(TeamContext);
 
     const [formData, setFormData] = useState({id: '', name: '', description: '', tags: [], teamMembers: [], solutionId: solutionId});
-    const [selectedValues, setSelectedValues] = useState([]);
-    const [tags, setTags] = useState([{name: "DDD", id: 1}, {name: "Clean Architecture", id: 2}])
+    const [selectedValues, setSelectedValues] = useState([]); // eslint-disable-line no-unused-vars
+    const [tags] = useState([{name: "DDD", id: 1}, {name: "Clean Architecture", id: 2}]); // eslint-disable-line no-unused-vars
 
     const handleSubmit = (e) => {
         e.preventDefault();

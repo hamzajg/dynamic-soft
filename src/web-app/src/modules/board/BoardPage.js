@@ -26,7 +26,7 @@ function BoardPage() {
     const [jsonError, setJsonError] = useState('');
     const [isCodeDrawerOpen, setIsCodeDrawerOpen] = useState(false);
     const [isAIChatOpen, setIsAIChatOpen] = useState(false);
-    const [reactFlowInstance, setReactFlowInstance] = useState(null);
+    const [reactFlowInstance, setReactFlowInstance] = useState(null); // eslint-disable-line no-unused-vars
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const diagram = findDiagramById(id);
@@ -38,7 +38,7 @@ function BoardPage() {
             setNodes(nodes);
             setEdges(edges);
         }
-    }, [setNodes, setEdges]);
+    }, [setNodes, setEdges, findBoardById, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -90,13 +90,13 @@ function BoardPage() {
 
     const onNodesChanged = (events) => {
         onNodesChange(events);
-        events.
-        filter(event => event.type !== 'remove').
-        forEach(() => {
-            saveFlowModel(id, nodes, edges);
-            setDiagramCode(JSON.stringify(generateJsonModel(id, nodes, edges), undefined, 2))
-        })
-    }
+        events
+            .filter(event => event.type !== 'remove')
+            .forEach(() => {
+                saveFlowModel(id, nodes, edges);
+                setDiagramCode(JSON.stringify(generateJsonModel(id, nodes, edges), undefined, 2));
+            });
+    };
 
     const onNodesDeleted = (deletedNode) => {
         const newNodes = deleteElements(nodes, deletedNode);
@@ -131,7 +131,7 @@ function BoardPage() {
     };
 
     return (
-        <div className="h-[calc(100vh-144px)] overflow-hidden relative rounded-lg border border-border-subtle shadow-2xl bg-background">
+        <div className="h-[calc(100vh-64px)] overflow-hidden relative bg-background">
             {/* Main Board Area */}
             <ReactFlow
                 nodes={nodes}
@@ -156,9 +156,8 @@ function BoardPage() {
                         }
                     }}
                     maskColor="rgba(12, 18, 32, 0.7)"
-                    style={{ right: isCodeDrawerOpen ? '400px' : '15px', transition: 'right 0.3s ease' }}
                 />
-                <Controls className="!bg-surface-elevated !border-border-subtle !fill-accent !shadow-lg" style={{ right: isCodeDrawerOpen ? '400px' : '15px', transition: 'right 0.3s ease' }} />
+                <Controls className="!bg-surface-elevated !border-border-subtle !fill-accent !shadow-lg" />
                 <Background color="rgba(0, 212, 255, 0.04)" gap={20}/>
             </ReactFlow>
 

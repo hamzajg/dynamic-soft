@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import {Button, Card, Textarea} from 'flowbite-react';
+import {Textarea} from 'flowbite-react';
 
 const AIChatDialog = ({ onAIAction }) => {
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
-    const placeholderResponse = 'Thinking...';
+
 
     const handleInputChange = (event) => {
         setMessage(event.target.value);

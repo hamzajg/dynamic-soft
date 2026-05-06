@@ -8,7 +8,7 @@ const TeamsPage = () => {
     const [showRightPanel, setShowRightPanel] = useState(false);
     const {addTeam, teams} = useContext(TeamContext);
     const [formData, setFormData] = useState({id: '', name: '', description: '', guild: '', members: []});
-    const [options, setOptions] = useState([{name: "Hamza Jguerim", id: 1}, {name: "Joe Doe", id: 2}]);
+    const [options] = useState([{name: "Hamza Jguerim", id: 1}, {name: "Joe Doe", id: 2}]); // eslint-disable-line no-unused-vars
 
     const handleSubmit = (e) => {
         e.preventDefault();

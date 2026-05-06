@@ -49,8 +49,9 @@ async function callSwaggerCodeGen(metadata) {
         });
 
         if (response.ok) {
-            return response.blob();
-            console.error('Project generated:');
+            const blob = response.blob();
+            console.log('Project generated:');
+            return blob;
         } else {
             console.error('Error generating project:', response.statusText);
         }
