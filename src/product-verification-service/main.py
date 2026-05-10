@@ -7,6 +7,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from core.config import Config
 from core.database import db
@@ -14,6 +16,9 @@ from api.suites import router as suites_router
 from api.verifications import router as verifications_router
 from api.artifacts import router as artifacts_router
 from api.ws import router as ws_router
+from api.local_projects import router as local_projects_router
+
+STATIC_DIR = Path(__file__).parent / "api" / "static"
 
 
 @asynccontextmanager
@@ -42,12 +47,28 @@ app.add_middleware(
 app.include_router(suites_router)
 app.include_router(verifications_router)
 app.include_router(artifacts_router)
+app.include_router(local_projects_router)
 app.include_router(ws_router)
 
 
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "service": "product-verification-service"}
+
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+    @app.get("/")
+    async def serve_root():
+        return FileResponse(STATIC_DIR / "index.html")
+
+    @app.get("/{path:path}")
+    async def serve_spa(path: str):
+        file_path = STATIC_DIR / path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(STATIC_DIR / "index.html")
 
 
 if __name__ == "__main__":

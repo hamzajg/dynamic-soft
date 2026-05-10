@@ -5,8 +5,8 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from ..core.config import Config
-from ..core.database import db
+from core.config import Config
+from core.database import db
 
 
 class SpecRunner:

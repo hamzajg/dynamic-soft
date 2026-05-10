@@ -259,3 +259,19 @@ def _print_discovery_summary(result):
             print(f"    \u2022 {e}")
     print(f"  Report : {result.report_path}")
     print(f"{'=' * 56}\n")
+
+
+async def describe_single_frame(frame_path: str, backend: str = None, model: str = None) -> str:
+    """Analyze a single frame image and return a description."""
+    from .frame_analyzer import create_frame_analyzer
+    from .models import Frame
+    import asyncio
+
+    frame = Frame(path=frame_path, timestamp_seconds=0.0, context="")
+
+    def _run():
+        analyzer = create_frame_analyzer(backend=backend, model=model)
+        descriptions = analyzer.describe_frames([frame])
+        return descriptions[0] if descriptions else "No description generated."
+
+    return await asyncio.to_thread(_run)

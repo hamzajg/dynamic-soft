@@ -14,7 +14,7 @@ class Config:
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:8000")
     OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 
-    ANALYSIS_ENABLED = os.getenv("ANALYSIS_ENABLED", "").lower() == "true"
+    ANALYSIS_ENABLED = os.getenv("ANALYSIS_ENABLED", "true").lower() == "true"
     FRAME_ANALYZER_BACKEND = os.getenv("ANALYSIS_FRAME_ANALYZER_BACKEND", "ollama")
     FRAME_ANALYZER_MODE = os.getenv("ANALYSIS_FRAME_ANALYZER_MODE", "single")
     FRAME_ANALYZER_MODEL = os.getenv("ANALYSIS_FRAME_ANALYZER_MODEL", "llava")

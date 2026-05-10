@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional
 
-from ..models.verification_run import TriggerRunRequest, TriggerRunResponse
-from ..core.database import get_db
-from .suite_loader import get_suite
-from ..services.spec_runner import SpecRunner
-from ..services.repo_manager import RepoManager
-from ..services.artifact_store import ArtifactStore
+from models.verification_run import TriggerRunRequest, TriggerRunResponse
+from core.database import get_db
+from api.suite_loader import get_suite
+from services.spec_runner import SpecRunner
+from services.repo_manager import RepoManager
+from services.artifact_store import ArtifactStore
 
 router = APIRouter(prefix="/api/v1/verifications", tags=["verifications"])
 
