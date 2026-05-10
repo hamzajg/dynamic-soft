@@ -12,6 +12,7 @@ import SolutionsPage from "./modules/solutions/SolutionsPage";
 import PrivateRoute from "./utilities/PrivateRoute";
 import AuthenticationPage from "./modules/authentication/AuthenticationPage";
 import MarketplacePage from "./modules/marketplace/MarketplacePage";
+import { VerificationsPage, RunDetail } from "./modules/product-verification";
 
 const App = () => {
     return (
@@ -26,6 +27,8 @@ const App = () => {
                             <Route path="/solutions/:id/projects" element={<PrivateRoute component={<ProjectsPage/>} />}/>
                             <Route path="/marketplace" element={<PrivateRoute component={<MarketplacePage/>} />}/>
                             <Route path="/teams" element={<PrivateRoute component={<TeamsPage/>} />}/>
+                            <Route path="/verification" element={<PrivateRoute component={<VerificationsPage/>} />}/>
+                            <Route path="/verification/runs/:id" element={<PrivateRoute component={<RunDetail/>} />}/>
                             <Route path="/projects/:id/diagrams" element={<PrivateRoute component={<DiagramsPage/>} />}/>
                             <Route path="/projects/:id/diagrams/:id/board" element={<PrivateRoute component={<BoardPage/>} />}/>
                         </Routes>

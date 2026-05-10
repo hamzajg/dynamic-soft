@@ -1,0 +1,15 @@
+name: exploration
+description: Full site exploration and content discovery
+mode: discovery
+repos:
+  - url: https://github.com/hamzajg/dynamic-soft
+    type: monolith
+    services:
+      - name: web-app
+        path: src/web-app
+        type: frontend
+        setup: bun install
+        start: bun run start
+        port: 3010
+scenarios:
+  - test_exploration_homepage

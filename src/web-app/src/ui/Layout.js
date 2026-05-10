@@ -44,6 +44,11 @@ const Layout = ({ children }) => {
                                     TEAMS
                                 </NavLink>
                             </li>
+                            <li>
+                                <NavLink to="/verification" className={location.pathname.startsWith('/verification') ? activeLinkClass : inactiveLinkClass}>
+                                    VERIFICATION
+                                </NavLink>
+                            </li>
                         </ul>
                     </div>
 
