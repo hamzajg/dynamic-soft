@@ -25,6 +25,7 @@ class AnalysisConfig:
     OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:8000")
+    REQUEST_TIMEOUT = int(os.getenv("ANALYSIS_REQUEST_TIMEOUT", "180"))
 
     UX_MODEL = os.getenv("ANALYSIS_UX_MODEL", "")
 

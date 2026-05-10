@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from ..core.config import Config
+from core.config import Config
 
 
 class RepoManager:

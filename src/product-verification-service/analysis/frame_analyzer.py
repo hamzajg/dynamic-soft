@@ -79,12 +79,13 @@ class OllamaFrameAnalyzer(FrameAnalyzer):
             self.endpoint, data=payload,
             headers=_ollama_headers(),
         )
+        timeout = AnalysisConfig.REQUEST_TIMEOUT
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 result = json.loads(resp.read())
                 return result.get("message", {}).get("content", "").strip()
         except Exception as e:
-            return f"[Ollama error: {e}]"
+            return f"[Ollama error ({timeout}s timeout): {e}]"
 
     def compare_models(self, frames, models):
         results = {}
@@ -112,6 +113,8 @@ class OllamaFrameAnalyzer(FrameAnalyzer):
         return "\n".join(lines)
 
     def _ollama_running(self):
+        if AnalysisConfig.OLLAMA_API_KEY:
+            return True
         try:
             req = urllib.request.Request(
                 f"{self._base}/api/tags", headers=_ollama_headers(),
@@ -122,6 +125,8 @@ class OllamaFrameAnalyzer(FrameAnalyzer):
             return False
 
     def _model_available(self):
+        if AnalysisConfig.OLLAMA_API_KEY:
+            return True
         try:
             req = urllib.request.Request(
                 f"{self._base}/api/tags", headers=_ollama_headers(),
@@ -294,14 +299,17 @@ class BatchOllamaFrameAnalyzer(FrameAnalyzer):
             self.endpoint, data=payload,
             headers=_ollama_headers(),
         )
+        timeout = AnalysisConfig.REQUEST_TIMEOUT
         try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 result = json.loads(resp.read())
                 return result.get("message", {}).get("content", "").strip()
         except Exception as e:
-            return f"[Batch analysis error: {e}]"
+            return f"[Batch analysis error ({timeout}s timeout): {e}]"
 
     def _ollama_running(self):
+        if AnalysisConfig.OLLAMA_API_KEY:
+            return True
         try:
             req = urllib.request.Request(
                 f"{self._base}/api/tags", headers=_ollama_headers(),
@@ -312,6 +320,8 @@ class BatchOllamaFrameAnalyzer(FrameAnalyzer):
             return False
 
     def _model_available(self):
+        if AnalysisConfig.OLLAMA_API_KEY:
+            return True
         try:
             req = urllib.request.Request(
                 f"{self._base}/api/tags", headers=_ollama_headers(),

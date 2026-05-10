@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse, Response
 
-from ..services.artifact_store import ArtifactStore
+from services.artifact_store import ArtifactStore
 
 router = APIRouter(prefix="/api/v1/verifications", tags=["artifacts"])
 store = ArtifactStore()

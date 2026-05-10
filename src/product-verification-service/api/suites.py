@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from .suite_loader import list_suites, get_suite
+from api.suite_loader import list_suites, get_suite
 
 router = APIRouter(prefix="/api/v1/spec-suites", tags=["suites"])
 

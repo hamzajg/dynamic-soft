@@ -2,7 +2,7 @@ import os
 import yaml
 from pathlib import Path
 
-from ..models.suite_config import SuiteConfig
+from models.suite_config import SuiteConfig
 
 
 SUITES_DIR = Path(__file__).parent.parent / "suites"

@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 
-from ..core.config import Config
+from core.config import Config
 
 
 class ArtifactStore:
