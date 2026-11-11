@@ -25,13 +25,21 @@ class IdentityResource @Inject constructor (private val service: UserService) {
 
     @POST
     @Path("/register")
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(summary = "Register a new user", description = "")
     @APIResponses(value = [
         APIResponse(responseCode = "201", description = "User registered successfully"),
-        APIResponse(responseCode = "400", description = "Bad request - Invalid input")
+        APIResponse(responseCode = "400", description = "Bad request - Invalid input"),
+        APIResponse(responseCode = "409", description = "Conflict - Username already taken")
     ])
     fun register(@RequestBody(description = "" , required=true) body: RegisterUserRequest, @Context securityContext: SecurityContext) : Response {
-        val user = service.register(User(body.username, body.password, body.email, body.firstName, body.lastName))
+        val user = try {
+            service.register(User(body.username, body.password, body.email, body.firstName, body.lastName))
+        } catch (e: IllegalArgumentException) {
+            return Response.status(Response.Status.CONFLICT)
+                .entity(ErrorResponse(e.message ?: "Username already taken"))
+                .build()
+        }
         return Response.status(Response.Status.CREATED).location(URI("api/users/${user.id}")).build()
     }
 
@@ -44,7 +52,15 @@ class IdentityResource @Inject constructor (private val service: UserService) {
         APIResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")])
     fun login(@RequestBody(description = "" , required=true) body: LoginUserRequest, @Context securityContext: SecurityContext) : Response
     {
-        val accessToken = service.authenticate(body.username, body.password)
+        val accessToken = try {
+            service.authenticate(body.username, body.password)
+        } catch (e: NoSuchElementException) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(ErrorResponse(e.message ?: "Invalid username or password"))
+                .build()
+        }
         return Response.ok(accessToken).build()
     }
 }
+
+data class ErrorResponse(val message: String)

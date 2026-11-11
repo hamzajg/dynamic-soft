@@ -16,7 +16,9 @@ class UserService(
     }
 
     fun authenticate(username: String, password: String): AccessToken? {
-        val user = authenticateUserUseCase.execute(username, password) ?: throw NoSuchElementException("No user found with username: $username")
+        // Do not reveal whether the username exists.
+        val user = authenticateUserUseCase.execute(username, password)
+            ?: throw NoSuchElementException("Invalid username or password")
         val token = generateToken(user)
         return AccessToken(token)
     }
