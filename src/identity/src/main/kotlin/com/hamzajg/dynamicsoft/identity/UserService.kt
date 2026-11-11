@@ -22,9 +22,10 @@ class UserService(
     }
 
     private fun generateToken(user: User): String {
+        val subject = user.id?.toString() ?: user.username
         val token = Jwt.issuer("https://${InetAddress.getLocalHost().hostName}/issuer")
             .upn(user.username)
-            .claim(Claims.sub, user.id)
+            .claim(Claims.sub, subject)
             .sign()
         return token
     }
