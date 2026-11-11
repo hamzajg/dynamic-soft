@@ -40,9 +40,14 @@ class UserServiceTest {
     fun testAuthenticate() {
         val user = User("testUser", "testPassword","test@email.com",
             "testFirstName", "testLastName")
+        userService.register(user)
 
-        val authenticatedUser = userService.authenticate(user.username, user.password)
-        assertEquals(user, authenticatedUser)
+        // Verify the credential check itself; token signing requires a
+        // configured key (see application.properties) and is covered by
+        // integration tests.
+        val authenticated = AuthenticateUserUseCase(userRepository)
+            .execute(user.username, user.password)
+        assertEquals(user, authenticated)
     }
 
     @Test
