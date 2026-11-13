@@ -3,7 +3,9 @@ package com.hamzajg.dynamicsoft.apis;
 import com.hamzajg.dynamicsoft.services.BoardService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
@@ -29,6 +31,7 @@ public class BoardController {
 
     @PutMapping("/{id}")
     public BoardDto updateBoard(@PathVariable("id") String id, @RequestBody BoardDto boardDto) {
-        return boardService.updateBoard(id, boardDto).orElse(null);
+        return boardService.updateBoard(id, boardDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found: " + id));
     }
 }
