@@ -41,7 +41,7 @@ dynamic-soft/  (Gradle multi-project, settings.gradle maps src:* → modules)
 │   ├── subscription/      Kotlin Quarkus (early-stage)
 │   ├── web-apis/          Java Spring-style APIs: controllers, services,
 │   │                      repositories, DTOs (Board/Project/Solution/Team/
-│   │                      Diagram + CodeGenChat)
+│   │                      Diagram + CodeGenChat + AgentTool /api/agent/*)
 │   ├── web-app/           React 18 CRA + Tailwind + react-flow (visual
 │   │                      architecture canvas) + swagger-ui-react
 │   ├── vscode-extension/  VS Code extension (TS)
@@ -81,6 +81,11 @@ go THERE, following that format — not in `docs/adr/`.
   assuming the toolchain.
 - `web-apis` has both Java and Kotlin sources/tests — it's the hybrid
   module; check which language a given class is in.
+- **web-apis security is effectively broken**: `anyRequest().authenticated()`
+  with no JWT decoder and no auth controller — every endpoint 401s over
+  HTTP (tests bypass HTTP). `@RolesAllowed` is inert without method
+  security. Don't assume endpoints are reachable; identity JWTs (identity
+  module) can't be verified here yet (ADR 004).
 - PVS was *ported* from another repo — `IMPLEMENTATION.md` lists exactly
   what was created; check it before assuming structure.
 - `src/product-verification-service` has committed runtime dirs
