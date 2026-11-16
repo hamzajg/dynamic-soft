@@ -17,7 +17,8 @@
 # docker run -i --rm -p 8080:8080 quarkus/webapi
 #
 ###
-FROM quay.io/quarkus/quarkus-micro-image:2.0
+# ubi9-based micro image; supersedes the retired ubi8 quarkus-micro-image:2.0
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
