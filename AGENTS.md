@@ -91,9 +91,12 @@ go THERE, following that format — not in `docs/adr/`.
   `@EnableMethodSecurity(jsr250Enabled = true)` — that flag defaults to
   `false`, and forgetting it silently makes the annotations decorative.
   A valid token without the role gets 403. The web-app logs in
-  against `POST :8080/api/identity/login` and sends the token via
-  `modules/api/client.js` (`apiFetch`); identity CORS is a JAX-RS
-  `CorsFilter` (Quarkus 3.5 ignores `quarkus.http.cors.*` keys here).
+  against `POST :8080/api/identity/login` and registers against
+  `POST :8080/api/identity/register` (the "Create Identity" mode on the
+  same page, which auto-logs-in on 201), sending the token via
+  `modules/api/client.js` (`apiFetch`/`identityFetch`); identity CORS is
+  a JAX-RS `CorsFilter` (Quarkus 3.5 ignores `quarkus.http.cors.*` keys
+  here).
 - PVS was *ported* from another repo — `IMPLEMENTATION.md` lists exactly
   what was created; check it before assuming structure.
 - `src/product-verification-service` has committed runtime dirs

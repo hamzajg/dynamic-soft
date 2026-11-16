@@ -3,23 +3,56 @@ import { TextInput } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { AuthenticationContext } from "./AuthenticatonProvider";
 
+const inputTheme = {
+    field: {
+        input: {
+            base: "block w-full border disabled:cursor-not-allowed disabled:opacity-50",
+            colors: {
+                gray: "bg-surface-elevated border-border-subtle text-text-primary focus:border-accent focus:ring-accent/20 placeholder-text-tertiary/30"
+            }
+        }
+    }
+};
+
+const Field = ({ label, ...props }) => (
+    <div className="space-y-2">
+        <label className="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.2em] ml-1">{label}</label>
+        <TextInput {...props} theme={inputTheme} />
+    </div>
+);
+
 const AuthenticationPage = () =>{
-    const { login } = useContext(AuthenticationContext);
+    const { login, register } = useContext(AuthenticationContext);
     const navigate = useNavigate();
+    const [mode, setMode] = useState('login');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const isRegister = mode === 'register';
+
+    const switchMode = (next) => {
+        setMode(next);
+        setError('');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
         try {
-            await login(email, password);
+            if (isRegister) {
+                await register({ username, password, email, firstName, lastName });
+            } else {
+                await login(username, password);
+            }
             navigate('/');
         } catch (err) {
-            setError(err.message || 'Login failed');
+            setError(err.message || (isRegister ? 'Registration failed' : 'Login failed'));
         } finally {
             setLoading(false);
         }
@@ -31,75 +64,91 @@ const AuthenticationPage = () =>{
                 <div className="absolute top-0 left-0 w-full h-1 bg-accent"></div>
                 
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-sans font-bold text-text-primary tracking-tight mb-2 uppercase">Welcome Back</h1>
-                    <p className="text-text-tertiary text-sm font-medium tracking-wide">Enter your credentials to access the grid.</p>
+                    <h1 className="text-3xl font-sans font-bold text-text-primary tracking-tight mb-2 uppercase">{isRegister ? 'Create Identity' : 'Welcome Back'}</h1>
+                    <p className="text-text-tertiary text-sm font-medium tracking-wide">{isRegister ? 'Provision a new identity on the grid.' : 'Enter your credentials to access the grid.'}</p>
                 </div>
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.2em] ml-1">Email Identity</label>
-                            <TextInput 
-                                type="email" 
+                    <Field
+                        label="Username"
+                        type="text"
+                        placeholder="your-username"
+                        required
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+
+                    {isRegister && (
+                        <>
+                            <Field
+                                label="Email"
+                                type="email"
                                 placeholder="user@dynamicsoft.cloud"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                            theme={{
-                                field: {
-                                    input: {
-                                        base: "block w-full border disabled:cursor-not-allowed disabled:opacity-50",
-                                        colors: {
-                                            gray: "bg-surface-elevated border-border-subtle text-text-primary focus:border-accent focus:ring-accent/20 placeholder-text-tertiary/30"
-                                        }
-                                    }
-                                }
-                            }}
-                        />
-                    </div>
+                            />
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.2em] ml-1">Secure Key</label>
-                        <TextInput 
-                            type="password" 
-                            placeholder="••••••••"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            theme={{
-                                field: {
-                                    input: {
-                                        base: "block w-full border disabled:cursor-not-allowed disabled:opacity-50",
-                                        colors: {
-                                            gray: "bg-surface-elevated border-border-subtle text-text-primary focus:border-accent focus:ring-accent/20 placeholder-text-tertiary/30"
-                                        }
-                                    }
-                                }
-                            }}
-                        />
-                    </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Field
+                                    label="First Name"
+                                    type="text"
+                                    placeholder="Ada"
+                                    required
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                />
+                                <Field
+                                    label="Last Name"
+                                    type="text"
+                                    placeholder="Lovelace"
+                                    required
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                />
+                            </div>
+                        </>
+                    )}
 
-                    <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center">
-                            <input id="remember" type="checkbox" className="w-4 h-4 rounded-sm border-border-subtle bg-surface-elevated text-accent focus:ring-accent/20 focus:ring-offset-background" />
-                            <label htmlFor="remember" className="ml-2 text-xs text-text-secondary font-medium">Remember me</label>
+                    <Field
+                        label="Secure Key"
+                        type="password"
+                        placeholder="••••••••"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+
+                    {!isRegister && (
+                        <div className="flex items-center justify-between pt-2">
+                            <div className="flex items-center">
+                                <input id="remember" type="checkbox" className="w-4 h-4 rounded-sm border-border-subtle bg-surface-elevated text-accent focus:ring-accent/20 focus:ring-offset-background" />
+                                <label htmlFor="remember" className="ml-2 text-xs text-text-secondary font-medium">Remember me</label>
+                            </div>
+                            <button type="button" className="text-xs text-accent hover:text-accent-hover font-bold uppercase tracking-wider transition-colors">Forgot key?</button>
                         </div>
-                        <button type="button" className="text-xs text-accent hover:text-accent-hover font-bold uppercase tracking-wider transition-colors">Forgot key?</button>
-                    </div>
+                    )}
 
                     {error && (
                         <p className="text-sm text-red-400 font-medium text-center bg-red-500/10 border border-red-500/30 rounded px-3 py-2">{error}</p>
                     )}
                     <div className="pt-6">
                         <button type="submit" disabled={loading} className="w-full py-4 bg-accent hover:bg-accent-hover text-background font-bold rounded-sm transition-all shadow-lg hover:shadow-accent/30 min-h-[44px] flex items-center justify-center uppercase tracking-[0.15em] text-sm">
-                            {loading ? 'Authorizing...' : 'Authorize Access'}
+                            {loading ? (isRegister ? 'Provisioning...' : 'Authorizing...') : (isRegister ? 'Provision Identity' : 'Authorize Access')}
                         </button>
                     </div>
                 </form>
 
                 <div className="mt-10 pt-8 border-t border-border-subtle text-center">
-                    <p className="text-text-tertiary text-xs font-medium">
-                        New to the ecosystem? <button type="button" className="text-accent hover:text-accent-hover font-bold transition-colors">Create Identity</button>
-                    </p>
+                    {isRegister ? (
+                        <p className="text-text-tertiary text-xs font-medium">
+                            Already have an identity? <button type="button" onClick={() => switchMode('login')} className="text-accent hover:text-accent-hover font-bold transition-colors">Sign In</button>
+                        </p>
+                    ) : (
+                        <p className="text-text-tertiary text-xs font-medium">
+                            New to the ecosystem? <button type="button" onClick={() => switchMode('register')} className="text-accent hover:text-accent-hover font-bold transition-colors">Create Identity</button>
+                        </p>
+                    )}
                 </div>
             </div>
             
