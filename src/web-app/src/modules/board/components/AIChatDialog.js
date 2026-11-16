@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Textarea} from 'flowbite-react';
+import { apiFetch } from '../../api/client';
 
 const AIChatDialog = ({ onAIAction, selectedNode }) => {
     const [messages, setMessages] = useState([]);
@@ -35,7 +36,7 @@ const AIChatDialog = ({ onAIAction, selectedNode }) => {
     const simulateAIResponse = async (userMessage) => {
         try {
             const contextParam = selectedNode ? `&context=${encodeURIComponent(JSON.stringify(selectedNode))}` : '';
-            const response = await fetch('http://localhost:8081/ai/generate?message=' + encodeURIComponent(userMessage) + contextParam, {
+            const response = await apiFetch('/ai/generate?message=' + encodeURIComponent(userMessage) + contextParam, {
                 method: 'GET',
             });
 

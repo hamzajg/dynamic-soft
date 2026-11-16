@@ -86,8 +86,10 @@ go THERE, following that format — not in `docs/adr/`.
   (`security.jwt.public-key-location`, env `JWT_PUBLIC_KEY_LOCATION`).
   Anonymous → 401; generate the keypair per environment — see
   `application.properties` comments. `@RolesAllowed` is still inert
-  (no method security, tokens carry no roles). The web-app's auth is
-  still a mock — real login wiring is a separate increment.
+  (no method security, tokens carry no roles). The web-app logs in
+  against `POST :8080/api/identity/login` and sends the token via
+  `modules/api/client.js` (`apiFetch`); identity CORS is a JAX-RS
+  `CorsFilter` (Quarkus 3.5 ignores `quarkus.http.cors.*` keys here).
 - PVS was *ported* from another repo — `IMPLEMENTATION.md` lists exactly
   what was created; check it before assuming structure.
 - `src/product-verification-service` has committed runtime dirs

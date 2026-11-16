@@ -1,3 +1,5 @@
+import { apiFetch } from '../api/client';
+
 const DiagramService = {
     postDiagram,
     fetchDiagrams
@@ -5,7 +7,7 @@ const DiagramService = {
 
 async function postDiagram (newDiagram) {
     try {
-        const response = await fetch('http://localhost:8081/diagrams', {
+        const response = await apiFetch('/diagrams', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +27,7 @@ async function postDiagram (newDiagram) {
 
 async function fetchDiagrams () {
     try {
-        const response = await fetch('http://localhost:8081/diagrams');
+        const response = await apiFetch('/diagrams');
 
         if (response.ok) {
             return await response.json();
