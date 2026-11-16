@@ -41,6 +41,22 @@ const AuthenticationProvider = ({ children }) => {
         applyToken(token);
     };
 
+    // Registers a new identity, then signs it in. The identity service
+    // returns 201 + a Location header (no token), so registration is only
+    // half the flow — we immediately log in to finish it.
+    const register = async ({ username, password, email, firstName, lastName }) => {
+        const response = await identityFetch('/api/identity/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, email, firstName, lastName }),
+        });
+        if (!response.ok) {
+            const body = await response.json().catch(() => null);
+            throw new Error(body?.message || 'Registration failed');
+        }
+        await login(username, password);
+    };
+
     const logout = () => {
         localStorage.removeItem('auth_token');
         setIsAuthenticated(false);
@@ -48,7 +64,7 @@ const AuthenticationProvider = ({ children }) => {
     };
 
     return (
-        <AuthenticationContext.Provider value={{ isAuthenticated, user, login, logout }}>
+        <AuthenticationContext.Provider value={{ isAuthenticated, user, login, register, logout }}>
             {children}
         </AuthenticationContext.Provider>
     );
