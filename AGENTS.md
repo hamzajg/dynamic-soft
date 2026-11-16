@@ -85,8 +85,12 @@ go THERE, following that format — not in `docs/adr/`.
   JWTs from the identity module against `jwt-public.pem`
   (`security.jwt.public-key-location`, env `JWT_PUBLIC_KEY_LOCATION`).
   Anonymous → 401; generate the keypair per environment — see
-  `application.properties` comments. `@RolesAllowed` is still inert
-  (no method security, tokens carry no roles). The web-app logs in
+  `application.properties` comments. `@RolesAllowed("user")` IS enforced:
+  identity signs a `groups` claim, web-apis maps it to `ROLE_*`, and
+  method security is on via
+  `@EnableMethodSecurity(jsr250Enabled = true)` — that flag defaults to
+  `false`, and forgetting it silently makes the annotations decorative.
+  A valid token without the role gets 403. The web-app logs in
   against `POST :8080/api/identity/login` and sends the token via
   `modules/api/client.js` (`apiFetch`); identity CORS is a JAX-RS
   `CorsFilter` (Quarkus 3.5 ignores `quarkus.http.cors.*` keys here).
