@@ -45,3 +45,5 @@ bin/
 ### Local secrets
 jwt-private.pem
 **/jwt-private.pem
+jwt-public.pem
+**/jwt-public.pem

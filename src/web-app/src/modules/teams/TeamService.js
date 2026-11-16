@@ -1,3 +1,5 @@
+import { apiFetch } from '../api/client';
+
 const TeamService = {
     postTeam,
     fetchTeams
@@ -5,7 +7,7 @@ const TeamService = {
 
 async function postTeam (newTeam) {
     try {
-        const response = await fetch('http://localhost:8081/teams', {
+        const response = await apiFetch('/teams', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +27,7 @@ async function postTeam (newTeam) {
 
 async function fetchTeams () {
     try {
-        const response = await fetch('http://localhost:8081/teams');
+        const response = await apiFetch('/teams');
 
         if (response.ok) {
             return await response.json();

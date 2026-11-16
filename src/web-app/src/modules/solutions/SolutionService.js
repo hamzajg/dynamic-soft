@@ -1,3 +1,5 @@
+import { apiFetch } from '../api/client';
+
 const SolutionService = {
     postSolution,
     fetchSolutions,
@@ -6,7 +8,7 @@ const SolutionService = {
 
 async function postSolution(newSolution) {
     try {
-        const response = await fetch('http://localhost:8081/solutions', {
+        const response = await apiFetch('/solutions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -26,7 +28,7 @@ async function postSolution(newSolution) {
 
 async function fetchSolutions() {
     try {
-        const response = await fetch('http://localhost:8081/solutions');
+        const response = await apiFetch('/solutions');
 
         if (response.ok) {
             return await response.json();
@@ -40,7 +42,7 @@ async function fetchSolutions() {
 
 async function callSwaggerCodeGen(metadata) {
     try {
-        const response = await fetch('http://localhost:8081/generators', {
+        const response = await apiFetch('/generators', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
