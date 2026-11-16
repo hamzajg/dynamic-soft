@@ -47,16 +47,16 @@ needs to *verify*.
   identity JWT → through, wrong-key/malformed/expired → 401. Covered by
   `JwtAuthenticationTest` (@SpringBootTest + MockMvc, throwaway RSA
   keypair — no key files needed in CI).
-- `@RolesAllowed("user")` on controllers remains **inert** — method
-  security is not enabled and identity tokens carry no role claims.
-  Enabling it is a follow-up once tokens carry authorities; until then
-  authentication ("who") works, authorization ("what") does not.
+- `@RolesAllowed("user")` on controllers was shipped here **inert** —
+  method security was not enabled and identity tokens carried no role
+  claim. Superseded by ADR-006, which signs a `groups` claim into the
+  token and turns on JSR-250 method security.
 - Issuer is not validated — verification is pinned to the public key
   only. Acceptable for a single-issuer learning deployment; add
   `JwtValidators`/`JwtDecoder` issuer checks if a second issuer appears.
-- The web-app's auth is still a mock (`mock_jwt_token` in localStorage,
-  no calls to identity). Wiring the React app to the real
-  `/api/identity/login` + `Authorization: Bearer` header is a separate
-  increment.
+- The web-app logs in against the real `POST /api/identity/login` and
+  sends `Authorization: Bearer` on every API call
+  (`src/web-app/src/modules/api/client.js`); a 401 clears the stored
+  token and returns to `/authentication`.
 - Per-user scoping (ADR-004's deferred "identity-aware" behavior) is now
   unblocked: controllers can read the `Jwt` authentication principal.

@@ -28,6 +28,9 @@ class UserService(
         val token = Jwt.issuer("https://${InetAddress.getLocalHost().hostName}/issuer")
             .upn(user.username)
             .claim(Claims.sub, subject)
+            // The `groups` claim carries the caller's roles. Every identity we
+            // issue today is a plain user; web-apis maps this to ROLE_user.
+            .groups("user")
             .sign()
         return token
     }

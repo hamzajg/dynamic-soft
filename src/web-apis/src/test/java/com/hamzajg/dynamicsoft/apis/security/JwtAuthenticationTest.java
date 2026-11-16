@@ -27,6 +27,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -80,13 +81,27 @@ class JwtAuthenticationTest {
 
     @Test
     void validIdentityTokenIsAccepted() throws Exception {
-        mockMvc.perform(bearer(token(privateKey, publicKey)))
+        mockMvc.perform(bearer(token(privateKey, publicKey, "user")))
                 .andExpect(status().isOk());
     }
 
     @Test
+    void tokenWithoutTheUserRoleIsForbidden() throws Exception {
+        // Identity verifies fine but carries no `groups` claim, so the
+        // @RolesAllowed("user") controllers must refuse it.
+        mockMvc.perform(bearer(token(privateKey, publicKey)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void tokenWithAnUnrelatedRoleIsForbidden() throws Exception {
+        mockMvc.perform(bearer(token(privateKey, publicKey, "admin")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void tokenSignedByAnotherKeyIsRejected() throws Exception {
-        mockMvc.perform(bearer(token(wrongKey, wrongPublicKey)))
+        mockMvc.perform(bearer(token(wrongKey, wrongPublicKey, "user")))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -106,21 +121,24 @@ class JwtAuthenticationTest {
         return get("/boards").header("Authorization", "Bearer " + token);
     }
 
-    private static String token(RSAPrivateKey signingKey, RSAPublicKey verificationKey) {
+    private static String token(RSAPrivateKey signingKey, RSAPublicKey verificationKey, String... groups) {
         RSAKey jwk = new RSAKey.Builder(verificationKey)
                 .privateKey(signingKey)
                 .keyID(UUID.randomUUID().toString())
                 .build();
         JwtEncoder encoder = new NimbusJwtEncoder(new ImmutableJWKSet(new JWKSet(jwk)));
-        JwtClaimsSet claims = JwtClaimsSet.builder()
+        JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
                 .issuer("https://localhost/issuer")
                 .subject(UUID.randomUUID().toString())
                 .claim("upn", "dev@dynamicsoft.cloud")
                 .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plus(15, ChronoUnit.MINUTES))
-                .build();
+                .expiresAt(Instant.now().plus(15, ChronoUnit.MINUTES));
+        if (groups.length > 0) {
+            // Mirrors the claim identity signs into its tokens (UserService).
+            claims.claim("groups", List.of(groups));
+        }
         JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).build();
-        return encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+        return encoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
     }
 
     private static String toPem(RSAPublicKey key) {
