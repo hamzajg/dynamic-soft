@@ -1,3 +1,5 @@
+import { apiFetch } from '../api/client';
+
 const ProjectService = {
     postProject,
     fetchProjects
@@ -5,7 +7,7 @@ const ProjectService = {
 
 async function postProject(newProject){
     try {
-        const response = await fetch('http://localhost:8081/projects', {
+        const response = await apiFetch('/projects', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +27,7 @@ async function postProject(newProject){
 
 async function fetchProjects(){
     try {
-        const response = await fetch('http://localhost:8081/projects');
+        const response = await apiFetch('/projects');
 
         if (response.ok) {
             return await response.json();

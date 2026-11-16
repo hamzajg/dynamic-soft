@@ -31,7 +31,7 @@ those are the whys.
 | `marketplace` | Kotlin/Quarkus | marketplace use cases + commands (jvmToolchain 8) |
 | `identity` | Kotlin/Quarkus | IdGenerator, IdentityResource (jvmToolchain 17) |
 | `subscription` | Kotlin/Quarkus | early-stage (jvmToolchain 17) |
-| `web-apis` | Java (+Kotlin tests) | REST surface: Board/Project/Solution/Team/Diagram controllers, services, repositories, DTOs, CodeGenChat, AgentTool (/api/agent/tools*) |
+| `web-apis` | Java (+Kotlin tests) | REST surface: Board/Project/Solution/Team/Diagram controllers, services, repositories, DTOs, CodeGenChat, AgentTool (/api/agent/tools*). OAuth2 resource server — verifies identity-module JWTs (ADR 005) |
 | `web-app` | React 18 (CRA) | visual architecture canvas (react-flow), swagger-ui |
 | `vscode-extension` / `cli-tool` | TS / — | IDE + CLI surfaces |
 | `product-verification-service` | Python FastAPI + React | spec e2e verification: suite/scenario/mode lifecycle, AI analysis (Ollama/opencode), artifact storage, browser viewer |
