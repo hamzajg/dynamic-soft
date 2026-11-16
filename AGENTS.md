@@ -81,11 +81,13 @@ go THERE, following that format — not in `docs/adr/`.
   assuming the toolchain.
 - `web-apis` has both Java and Kotlin sources/tests — it's the hybrid
   module; check which language a given class is in.
-- **web-apis security is effectively broken**: `anyRequest().authenticated()`
-  with no JWT decoder and no auth controller — every endpoint 401s over
-  HTTP (tests bypass HTTP). `@RolesAllowed` is inert without method
-  security. Don't assume endpoints are reachable; identity JWTs (identity
-  module) can't be verified here yet (ADR 004).
+- **web-apis is an OAuth2 resource server** (ADR 005): it verifies RS256
+  JWTs from the identity module against `jwt-public.pem`
+  (`security.jwt.public-key-location`, env `JWT_PUBLIC_KEY_LOCATION`).
+  Anonymous → 401; generate the keypair per environment — see
+  `application.properties` comments. `@RolesAllowed` is still inert
+  (no method security, tokens carry no roles). The web-app's auth is
+  still a mock — real login wiring is a separate increment.
 - PVS was *ported* from another repo — `IMPLEMENTATION.md` lists exactly
   what was created; check it before assuming structure.
 - `src/product-verification-service` has committed runtime dirs
