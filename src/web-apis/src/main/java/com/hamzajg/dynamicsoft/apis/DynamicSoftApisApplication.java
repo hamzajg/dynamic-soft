@@ -13,12 +13,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -49,6 +52,9 @@ import java.util.Base64;
 
 @SpringBootApplication(scanBasePackages = "com.hamzajg.dynamicsoft")
 @EnableWebSecurity
+// jsr250Enabled defaults to false — without it the controllers' @RolesAllowed
+// annotations are decorative, which is how they stayed inert until now.
+@EnableMethodSecurity(jsr250Enabled = true)
 public class DynamicSoftApisApplication {
 
 	public static void main(String[] args) {
@@ -110,13 +116,26 @@ public class DynamicSoftApisApplication {
 	}
 
 	@Bean
+	public JwtAuthenticationConverter jwtAuthenticationConverter() {
+		// Identity tokens carry roles in the `groups` claim (MicroProfile JWT
+		// convention); Spring expects authorities. Map each group to ROLE_<group>
+		// so `@RolesAllowed("user")` (JSR-250) actually enforces something.
+		JwtGrantedAuthoritiesConverter authorities = new JwtGrantedAuthoritiesConverter();
+		authorities.setAuthoritiesClaimName("groups");
+		authorities.setAuthorityPrefix("ROLE_");
+		JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+		converter.setJwtGrantedAuthoritiesConverter(authorities);
+		return converter;
+	}
+
+	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests((requests) -> requests
 						.requestMatchers("/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
 						.anyRequest().authenticated())
-				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
