@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { getAuthToken, decodeJwtPayload, isTokenExpired, identityFetch } from '../api/client';
 
 const AuthenticationContext = createContext();
 
@@ -6,27 +7,42 @@ const AuthenticationProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        const token = localStorage.getItem('mock_jwt_token');
-        if (token) {
-            setIsAuthenticated(true);
-            setUser({ email: 'user@dynamicsoft.cloud', name: 'Demo User' });
-        }
-    }, []);
-
-    const login = async (email, password) => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                localStorage.setItem('mock_jwt_token', 'mock.jwt.token.12345');
-                setIsAuthenticated(true);
-                setUser({ email: email || 'user@dynamicsoft.cloud', name: 'Demo User' });
-                resolve();
-            }, 800);
+    const applyToken = (token) => {
+        const payload = decodeJwtPayload(token);
+        localStorage.setItem('auth_token', token);
+        setIsAuthenticated(true);
+        setUser({
+            username: payload?.upn || payload?.sub || 'user',
+            name: payload?.upn || payload?.sub || 'User',
         });
     };
 
+    useEffect(() => {
+        const token = getAuthToken();
+        if (token && !isTokenExpired(token)) {
+            applyToken(token);
+        } else if (token) {
+            localStorage.removeItem('auth_token');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const login = async (username, password) => {
+        const response = await identityFetch('/api/identity/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+        if (!response.ok) {
+            const body = await response.json().catch(() => null);
+            throw new Error(body?.message || 'Invalid username or password');
+        }
+        const { token } = await response.json();
+        applyToken(token);
+    };
+
     const logout = () => {
-        localStorage.removeItem('mock_jwt_token');
+        localStorage.removeItem('auth_token');
         setIsAuthenticated(false);
         setUser(null);
     };

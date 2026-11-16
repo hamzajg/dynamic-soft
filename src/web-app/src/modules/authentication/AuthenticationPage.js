@@ -9,12 +9,20 @@ const AuthenticationPage = () =>{
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        await login(email, password);
-        navigate('/');
+        setError('');
+        try {
+            await login(email, password);
+            navigate('/');
+        } catch (err) {
+            setError(err.message || 'Login failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -78,6 +86,9 @@ const AuthenticationPage = () =>{
                         <button type="button" className="text-xs text-accent hover:text-accent-hover font-bold uppercase tracking-wider transition-colors">Forgot key?</button>
                     </div>
 
+                    {error && (
+                        <p className="text-sm text-red-400 font-medium text-center bg-red-500/10 border border-red-500/30 rounded px-3 py-2">{error}</p>
+                    )}
                     <div className="pt-6">
                         <button type="submit" disabled={loading} className="w-full py-4 bg-accent hover:bg-accent-hover text-background font-bold rounded-sm transition-all shadow-lg hover:shadow-accent/30 min-h-[44px] flex items-center justify-center uppercase tracking-[0.15em] text-sm">
                             {loading ? 'Authorizing...' : 'Authorize Access'}
