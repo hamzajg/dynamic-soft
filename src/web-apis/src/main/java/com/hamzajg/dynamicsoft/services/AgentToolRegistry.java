@@ -5,7 +5,7 @@ import com.hamzajg.dynamicsoft.apis.AgentToolResult;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.OllamaChatClient;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,11 +31,11 @@ public class AgentToolRegistry {
     private record Field(String name, String description, boolean required) {
     }
 
-    private final OllamaChatClient chatClient;
+    private final OllamaChatModel chatClient;
     private final ArchitectureContextService contextService;
     private final Map<String, ToolSpec> tools = new LinkedHashMap<>();
 
-    public AgentToolRegistry(OllamaChatClient chatClient,
+    public AgentToolRegistry(OllamaChatModel chatClient,
                              ArchitectureContextService contextService) {
         this.chatClient = chatClient;
         this.contextService = contextService;
@@ -116,7 +116,7 @@ public class AgentToolRegistry {
     private String ask(String system, String user) {
         var response = chatClient.call(new Prompt(List.of(
                 new SystemMessage(system), new UserMessage(user))));
-        return response.getResult().getOutput().getContent();
+        return response.getResult().getOutput().getText();
     }
 
     private static String require(Map<String, Object> input, String key) {

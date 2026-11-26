@@ -20,13 +20,13 @@ Verified 2026-11-13 against CI (`.github/workflows/ci.yml`) and build files.
 
 | Task | Command |
 |---|---|
-| JVM tests | `sh gradlew test --no-daemon` (CI: JDK 17) |
+| JVM tests | `sh gradlew test --no-daemon` (CI: JDK 25) |
 | JVM build | `sh gradlew build` |
 | Run a service | `cd src/<module> && sh ../../gradlew quarkusDev` (Quarkus dev mode) |
 | Product Verification svc | `cd src/product-verification-service && uvicorn main:app --port 8083 --reload` (see its README) |
 | Web app | `cd src/web-app && npm start` / `npm run build` (react-scripts) |
 
-Requires: JDK 17 for Gradle; Kotlin toolchains vary per module
+Requires: JDK 25 for Gradle; all modules use a Java 25 toolchain
 (`jvmToolchain(8)` in marketplace/sharedkernel, 17 elsewhere — foojay
 resolver is configured in `settings.gradle`).
 

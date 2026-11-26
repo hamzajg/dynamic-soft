@@ -5,10 +5,10 @@ import com.hamzajg.dynamicsoft.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.ai.chat.ChatResponse;
-import org.springframework.ai.chat.Generation;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.OllamaChatClient;
+import org.springframework.ai.ollama.OllamaChatModel;
 
 import java.util.List;
 import java.util.Map;
@@ -19,15 +19,15 @@ import static org.mockito.Mockito.*;
 
 class AgentToolRegistryTest {
 
-    private OllamaChatClient chatClient;
+    private OllamaChatModel chatClient;
     private AgentToolRegistry registry;
     private ArchitectureContextService contextService;
 
     @BeforeEach
     void setUp() {
-        chatClient = mock(OllamaChatClient.class);
+        chatClient = mock(OllamaChatModel.class);
         when(chatClient.call(any(Prompt.class))).thenReturn(
-                new ChatResponse(List.of(new Generation("llm-output"))));
+                new ChatResponse(List.of(new Generation(new org.springframework.ai.chat.messages.AssistantMessage("llm-output")))));
         contextService = new ArchitectureContextService(
                 new BoardRepository(), new DiagramRepository(),
                 new ProjectRepository(), new SolutionRepository(),
@@ -64,7 +64,7 @@ class AgentToolRegistryTest {
 
         ArgumentCaptor<Prompt> captor = ArgumentCaptor.forClass(Prompt.class);
         verify(chatClient).call(captor.capture());
-        String userMessage = captor.getValue().getInstructions().get(1).getContent();
+        String userMessage = captor.getValue().getInstructions().get(1).getText();
         assertTrue(userMessage.contains("System Architecture State"));
         assertTrue(userMessage.contains("is this modular?"));
     }
