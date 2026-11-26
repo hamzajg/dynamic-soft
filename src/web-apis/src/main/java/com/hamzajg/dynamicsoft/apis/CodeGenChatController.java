@@ -2,10 +2,10 @@ package com.hamzajg.dynamicsoft.apis;
 
 import com.hamzajg.dynamicsoft.services.ArchitectureContextService;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.OllamaChatClient;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -16,11 +16,11 @@ import java.util.Map;
 @RolesAllowed("user")
 public class CodeGenChatController {
 
-    private final OllamaChatClient chatClient;
+    private final OllamaChatModel chatClient;
     private final ArchitectureContextService contextService;
 
     @Autowired
-    public CodeGenChatController(OllamaChatClient chatClient, ArchitectureContextService contextService) {
+    public CodeGenChatController(OllamaChatModel chatClient, ArchitectureContextService contextService) {
         this.chatClient = chatClient;
         this.contextService = contextService;
     }
@@ -33,7 +33,8 @@ public class CodeGenChatController {
                 "Otherwise, return normal text.\n\n";
         String fullPrompt = systemPrompt + "Context:\n" + context + "\nUser Question: " + message;
         
-        String response = chatClient.call(fullPrompt);
+        var result = chatClient.call(new org.springframework.ai.chat.prompt.Prompt(fullPrompt));
+        String response = result.getResult().getOutput().getText();
         // Simple check to see if AI returned JSON (basic implementation)
         if (response.contains("\"type\": \"ARCHITECTURAL_PROPOSAL\"")) {
             return Map.of("proposal", response);
